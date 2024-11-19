@@ -3,36 +3,59 @@
     <div class="auth__title-wrapper">
       <h1 class="auth__title">Авторизация</h1>
     </div>
-    <form class="auth__inputs">
+    <form class="auth__inputs" @submit.prevent="submitForm">
       <h2 class="inputs__title">Логин или Телефон</h2>
       <div class="inputs__input-wrapper">
         <img src="../assets/icons/phone.svg" class="input-icon">
-        <input class="contacts__input" type="number" value="+7">
+        <input class="contacts__input" type="number" v-model="username" placeholder="+7">
       </div>
       <div class="inputs__input-wrapper">
         <img src="../assets/icons/lock.svg" class="input-icon">
-        <input :type="isShowPassword ? 'text' : 'password'" class="contacts__input">
+        <input :type="isShowPassword ? 'text' : 'password'" class="contacts__input" v-model="password">
         <button type="button" class="show__password-btn" @click="togglePassword">
           <img src="../assets/icons/eye.svg" class="input-icon" style="margin-left: auto;">
         </button>
       </div>
       <button type="submit" class="login__button">Войти</button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
+
 export default {
   name: 'AuthWindow',
   data() {
     return {
+      username: '',
+      password: '',
       isShowPassword: false
     }
   },
 
+  computed: {
+    ...mapState(['errorMessage'])
+  },
+
   methods: {
+    ...mapActions(['login']),
+
     togglePassword() {
       this.isShowPassword = !this.isShowPassword
+    },
+
+    async submitForm() {
+      const credentials = {
+        username: this.username,
+        password: this.password
+      }
+      try {
+        await this.login({ credentials, router: this.$router });
+      } catch (error) {
+        console.error('Ошибка авторизации: ', error);
+      }
     }
   }
 }
