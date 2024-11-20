@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import App from '../App.vue'
 import AuthPage from '../pages/AuthPage.vue'
-import TasksList from '../pages/TasksList.vue'
+import TasksPage from '../pages/TasksPage.vue'
 
 Vue.use(Router)
 
@@ -23,7 +23,7 @@ export default new Router({
 		{
 			path: '/tasks',
 			name: 'TasksList',
-			component: TasksList,
+			component: TasksPage,
 		},
 	],
 })
