@@ -9,6 +9,7 @@ export default new Vuex.Store({
 		token: null,
 		errorMessage: null,
 		tasks: [],
+		isCreatePopupOpen: false,
 	},
 	mutations: {
 		SET_TOKEN(state, token) {
@@ -19,6 +20,12 @@ export default new Vuex.Store({
 		},
 		SET_TASKS(state, tasks) {
 			state.tasks = tasks
+		},
+		SET_OPEN_POPUP(state) {
+			state.isCreatePopupOpen = true
+		},
+		SET_CLOSE_POPUP(state) {
+			state.isCreatePopupOpen = false
 		},
 	},
 	actions: {
@@ -49,6 +56,12 @@ export default new Vuex.Store({
 			} catch {
 				commit('SET_ERROR_MESSAGE', 'Некорректные данные')
 			}
+		},
+		openPopup({ commit }) {
+			commit('SET_OPEN_POPUP')
+		},
+		closePopup({ commit }) {
+			commit('SET_CLOSE_POPUP')
 		},
 	},
 })

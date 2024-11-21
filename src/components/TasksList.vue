@@ -1,6 +1,6 @@
 <template>
   <div class="tasks-list">
-    <button class="search__button">Создать</button>
+    <button class="search__button" @click="openPopup">Создать</button>
     <div class="list__inputs-wrapper">
       <div class="search-wrapper">
         <input class="input__search" placeholder="Поиск (№ заявки, название)">
@@ -65,6 +65,7 @@
       </div>
     </div>
     <BasePagination/>
+    <BasePopup/>
   </div>
 </template>
 
@@ -73,15 +74,17 @@ import { mapState, mapActions } from 'vuex';
 import { formatDate } from '../helpers/formatDate.js';
 import { formatDateWithTime } from '../helpers/formatDateWithTime.js';
 import BasePagination from './BasePagination.vue';
+import BasePopup from './BasePopup.vue';
 
 export default {
   name: 'TasksList',
   components: {
-    BasePagination
+    BasePagination,
+    BasePopup
   },
   data() {
     return {
-
+      
     }
   },
 
@@ -90,7 +93,7 @@ export default {
   },
 
   methods: {
-    ...mapActions(['fetchTasks']),
+    ...mapActions(['fetchTasks', 'openPopup', 'closePopup']),
     formatDate,
     formatDateWithTime
   },
