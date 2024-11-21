@@ -1,6 +1,6 @@
 <template>
   <div class="tasks-list">
-    <button class="search__button">Button label</button>
+    <button class="search__button">Создать</button>
     <div class="list__inputs-wrapper">
       <div class="search-wrapper">
         <input class="input__search" placeholder="Поиск (№ заявки, название)">
@@ -8,7 +8,7 @@
       </div>
       <div class="search-wrapper">
         <input class="input__search" placeholder="Дом">
-        <img src="../assets/icons/search.svg">
+        <img src="../assets/icons/arrow-bottom.svg">
       </div>
     </div>
     <div class="list__table" style="height: 45px;">
@@ -41,15 +41,15 @@
         <img src="../assets/icons/arrow-up.svg">
       </div>
     </div>
-    <div class="list__table" v-for="task in tasks.results" :key="task">
+    <div class="list__table" v-for="(task, index) in tasks.results" :key="task">
       <div class="table__slot num-slot">
-        <button class="table__change-btn">Ред</button>
+        <button class="table__change-btn">{{ index + 1 }}</button>
       </div>
       <div class="table__slot date-slot">
         <p class="table__item text-item">{{ formatDate(task.created_at) }}</p>
       </div>
       <div class="table__slot address-slot">
-        <p class="table__item text-item" v-if="task.premise">{{ task.premise.address }}</p>
+        <p class="table__item text-item" v-if="task.premise">{{ task.premise.address }}, кв. {{ task.premise.apartments_count }}</p>
       </div>
       <div class="table__slot user-slot">
         <p class="table__item text-item">{{ task.applicant.last_name }}. {{ task.applicant.first_name.slice(0, 1) }}. {{ task.applicant.patronymic_name.slice(0, 1) }}</p>
@@ -64,6 +64,7 @@
         <p class="table__item text-item">{{ task.status.name }}</p>
       </div>
     </div>
+    <BasePagination/>
   </div>
 </template>
 
@@ -71,9 +72,13 @@
 import { mapState, mapActions } from 'vuex';
 import { formatDate } from '../helpers/formatDate.js';
 import { formatDateWithTime } from '../helpers/formatDateWithTime.js';
+import BasePagination from './BasePagination.vue';
 
 export default {
   name: 'TasksList',
+  components: {
+    BasePagination
+  },
   data() {
     return {
 
@@ -92,9 +97,7 @@ export default {
 
   watch: {
     tasks(newTasks) {
-      newTasks.results.forEach(el => {
-        console.log(el.premise)
-      });
+      console.log(newTasks.results)
     }
   },
 
