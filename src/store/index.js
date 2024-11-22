@@ -77,5 +77,19 @@ export default new Vuex.Store({
 		closePopup({ commit }) {
 			commit('SET_CLOSE_POPUP')
 		},
+		async createAppeal({ state }, formData) {
+			try {
+				const response = await axios.post('https://dev.moydomonline.ru/api/appeals/v1.0/appeals/', formData, {
+					headers: {
+						Authorization: `Token ${state.token}`,
+					},
+				})
+				console.log('Заявка создана:', response.data)
+				return response.data
+			} catch (error) {
+				console.error('Ошибка при создании заявки:', error)
+				throw error
+			}
+		},
 	},
 })

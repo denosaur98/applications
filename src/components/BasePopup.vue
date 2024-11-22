@@ -1,42 +1,42 @@
 <template>
   <div class="base-popup" v-if="isCreatePopupOpen">
     <div class="popup__overlay" @click="closePopup"></div>
-    <form class="popup-wrapper">
+    <form class="popup-wrapper" @submit.prevent="submitAppeal">
       <div class="popup__title-wrapper">
         <h1 class="popup__title">Создание заявки</h1>
         <h2 class="task__title">Новая</h2>
       </div>
       <div class="popup__inputs-wrapper">
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Дом">
+          <input class="input__item" v-model="formData.premise_id" placeholder="Дом">
           <img src="../assets/icons/arrow-bottom.svg">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Квартира">
+          <input class="input__item" v-model="formData.apartment_id" placeholder="Квартира">
           <img src="../assets/icons/arrow-bottom.svg">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Срок">
+          <input class="input__item" v-model="formData.due_date" type="datetime-local" placeholder="Срок">
         </div>
       </div>
       <div class="popup__inputs-wrapper">
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Фамилия">
+          <input class="input__item" v-model="formData.applicant.last_name" placeholder="Фамилия">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Имя">
+          <input class="input__item" v-model="formData.applicant.first_name" placeholder="Имя">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Отчество">
+          <input class="input__item" v-model="formData.applicant.patronymic_name" placeholder="Отчество">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" placeholder="Телефон">
+          <input class="input__item" v-model="formData.applicant.username" placeholder="Телефон">
         </div>
       </div>
       <div class="popup__inputs-wrapper" style="height: auto;">
-        <textarea class="input__item input__area" placeholder="Описание заявки"/>
+        <textarea class="input__item input__area" v-model="formData.description" placeholder="Описание заявки"></textarea>
       </div>
-      <button class="create__task-button">Создать</button>
+      <button class="create__task-button" type="submit">Создать</button>
     </form>
   </div>
 </template>
@@ -46,14 +46,56 @@ import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'BasePopup',
-  
+  data() {
+    return {
+      formData: {
+        premise_id: '',
+        apartment_id: '',
+        due_date: '',
+        applicant: {
+          last_name: '',
+          first_name: '',
+          patronymic_name: '',
+          username: ''
+        },
+        description: ''
+      }
+    }
+  },
+
   computed: {
-    ...mapState(['isCreatePopupOpen'])
+    ...mapState(['isCreatePopupOpen']),
   },
 
   methods: {
-    ...mapActions(['closePopup'])
-  }
+    ...mapActions(['closePopup', 'createAppeal']),
+    async submitAppeal() {
+      try {
+        console.log('Отправка данных:', this.formData)
+        await this.createAppeal(this.formData)
+        this.closePopup()
+        this.clearFormData()
+      } catch (error) {
+        this.closePopup()
+        alert('Ошибка при создании заявки: ', error)
+        this.clearFormData()
+      }
+    },
+    clearFormData() {
+      this.formData = {
+        premise_id: '',
+        apartment_id: '',
+        due_date: '',
+        applicant: {
+          last_name: '',
+          first_name: '',
+          patronymic_name: '',
+          username: ''
+        },
+        description: ''
+      }
+    }
+  },
 }
 </script>
 
