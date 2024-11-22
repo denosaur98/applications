@@ -10,6 +10,8 @@ export default new Vuex.Store({
 		errorMessage: null,
 		tasks: [],
 		isCreatePopupOpen: false,
+		currentPage: 1,
+		pageSize: 10,
 	},
 	mutations: {
 		SET_TOKEN(state, token) {
@@ -27,6 +29,12 @@ export default new Vuex.Store({
 		SET_CLOSE_POPUP(state) {
 			state.isCreatePopupOpen = false
 		},
+		SET_CURRENT_PAGE(state, page) {
+			state.currentPage = page
+		},
+		SET_PAGE_SIZE(state, size) {
+			state.pageSize = size
+		},
 	},
 	actions: {
 		async login({ commit }, { credentials, router }) {
@@ -41,7 +49,7 @@ export default new Vuex.Store({
 				commit('SET_ERROR_MESSAGE', 'Некорректные данные')
 			}
 		},
-		async fetchTasks({ commit, state }) {
+		async fetchTasks({ commit, state }, { page = 1, pageSize = 10 } = {}) {
 			if (!state.token) {
 				console.error('Токен не установлен')
 				return
@@ -51,8 +59,14 @@ export default new Vuex.Store({
 					headers: {
 						Authorization: `Token ${state.token}`,
 					},
+					params: {
+						page: page,
+						page_size: pageSize,
+					},
 				})
 				commit('SET_TASKS', response.data)
+				commit('SET_CURRENT_PAGE', page)
+				commit('SET_PAGE_SIZE', pageSize)
 			} catch {
 				commit('SET_ERROR_MESSAGE', 'Некорректные данные')
 			}

@@ -5,7 +5,7 @@
         <p class="pages__count">1 — 10 <span>из</span> {{ tasks.count }} <span>записей</span></p>
       </div>
       <div class="pages__select-wrapper">
-        <input class="select__input" value="10">
+        <input class="select__input" v-model="pageSize" @change="updatePageSize">
         <button class="select__button">
           <img src="../assets/icons/arrow-bottom.svg" class="arrow__icon">
         </button>
@@ -47,24 +47,20 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
+
 export default {
   name: 'BasePagination',
   data() {
     return {
       currentPageGroup: 1,
       pagesPerGroup: 5,
-      currentPage: 1
-    }
-  },
-
-  props: {
-    tasks: {
-      type: Object,
-      required: true
+      pageSize: 10,
     }
   },
 
   computed: {
+    ...mapState(['tasks', 'currentPage']),
     visiblePages() {
       const startPage = (this.currentPageGroup - 1) * this.pagesPerGroup + 1
       const endPage = Math.min(startPage + this.pagesPerGroup - 1, this.tasks.pages)
@@ -73,10 +69,11 @@ export default {
   },
 
   methods: {
+    ...mapActions(['fetchTasks']),
     async goToPage(page) {
       try {
-        await this.$router.push({ query: { page } })
-        this.currentPage = page
+        await this.fetchTasks({ page, pageSize: this.pageSize })
+        this.$router.push({ query: { page } })
       } catch (err) {
         if (err.name !== 'NavigationDuplicated') {
           throw err
@@ -112,11 +109,14 @@ export default {
     goToLastPage() {
       this.currentPageGroup = Math.ceil(this.tasks.pages / this.pagesPerGroup)
       this.goToPage(this.tasks.pages)
+    },
+    updatePageSize() {
+      this.fetchTasks({ page: this.currentPage, pageSize: this.pageSize })
     }
   },
 
   mounted() {
-    console.log(this.tasks)
+    this.fetchTasks({ page: this.currentPage, pageSize: this.pageSize })
   }
 }
 </script>
