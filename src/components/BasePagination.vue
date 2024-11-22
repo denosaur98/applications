@@ -81,7 +81,7 @@ export default {
     async goToPage(page) {
       try {
         await this.fetchTasks({ page, pageSize: this.pageSize })
-        this.$router.push({ query: { page } })
+        this.$router.push({ query: { page, page_size: this.pageSize } })
       } catch (err) {
         if (err.name !== 'NavigationDuplicated') {
           throw err
@@ -136,6 +136,7 @@ export default {
       this.pageSize = size
       this.closeDropdown()
       this.fetchTasks({ page: this.currentPage, pageSize: this.pageSize })
+      this.$router.push({ query: { page: this.currentPage, page_size: this.pageSize } })
     }
   },
 
