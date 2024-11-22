@@ -5,8 +5,15 @@
         <p class="pages__count">1 — 10 <span>из</span> {{ tasks.count }} <span>записей</span></p>
       </div>
       <div class="pages__select-wrapper">
-        <input class="select__input" v-model="pageSize" @change="updatePageSize">
-        <button class="select__button">
+        <input class="select__input" type="number" v-model.number="pageSize" @input="validatePageSize">
+        <div class="select__dropdown" v-if="isDropdownOpen" v-click-outside="closeDropdown">
+          <p class="dropdown__items" @click="setPageSize(10)">10</p>
+          <p class="dropdown__items" @click="setPageSize(20)">20</p>
+          <p class="dropdown__items" @click="setPageSize(30)">30</p>
+          <p class="dropdown__items" @click="setPageSize(40)">40</p>
+          <p class="dropdown__items" @click="setPageSize(50)">50</p>
+        </div>
+        <button class="select__button" @click="openDropdown">
           <img src="../assets/icons/arrow-bottom.svg" class="arrow__icon">
         </button>
       </div>
@@ -56,6 +63,7 @@ export default {
       currentPageGroup: 1,
       pagesPerGroup: 5,
       pageSize: 10,
+      isDropdownOpen: false
     }
   },
 
@@ -110,7 +118,23 @@ export default {
       this.currentPageGroup = Math.ceil(this.tasks.pages / this.pagesPerGroup)
       this.goToPage(this.tasks.pages)
     },
-    updatePageSize() {
+    validatePageSize() {
+      if (this.pageSize < 1) {
+        this.pageSize = 1;
+      } else if (this.pageSize > 50) {
+        this.pageSize = 50;
+      }
+      this.fetchTasks({ page: this.currentPage, pageSize: this.pageSize })
+    },
+    openDropdown() {
+      this.isDropdownOpen = true
+    },
+    closeDropdown() {
+      this.isDropdownOpen = false
+    },
+    setPageSize(size) {
+      this.pageSize = size
+      this.closeDropdown()
       this.fetchTasks({ page: this.currentPage, pageSize: this.pageSize })
     }
   },
@@ -154,6 +178,7 @@ export default {
     }
 
     .pages__select-wrapper {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -170,6 +195,30 @@ export default {
         line-height: 20px;
         letter-spacing: 0%;
         text-align: left;
+      }
+
+      .select__dropdown {
+        position: absolute;
+        top: -90px;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background: #fff;
+        border: 1px solid rgb(204, 204, 204);
+        border-radius: 4px;
+        z-index: 999;
+
+        .dropdown__items {
+          cursor: pointer;
+          font-size: 14px;
+          padding: 5px;
+
+          &:hover {
+            background: rgb(204, 204, 204);
+            transition: .3s;
+          }
+        }
       }
 
       .select__button {
