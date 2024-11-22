@@ -2,7 +2,7 @@
   <div class="base-pagination">
     <div class="pagination__count-wrapper">
       <div class="pages__count-wrapper">
-        <p class="pages__count">1 — 10 <span>из</span> 1500 <span>записей</span></p>
+        <p class="pages__count">1 — 10 <span>из</span> {{ tasks.count }} <span>записей</span></p>
       </div>
       <div class="pages__select-wrapper">
         <input class="select__input" value="10">
@@ -12,23 +12,34 @@
       </div>
     </div>
     <div class="pagination__items">
-      <button class="pagination__button button__left">
+      <button class="pagination__button button__left" @click="goToFirstPage">
         <img src="../assets/icons/prew-to-first.svg">
       </button>
-      <button class="pagination__button">
+      <button class="pagination__button" @click="goToPreviousPage">
         <img src="../assets/icons/prew.svg">
       </button>
-      <button class="pagination__button active">1</button>
-      <button class="pagination__button">2</button>
-      <button class="pagination__button">3</button>
-      <button class="pagination__button">4</button>
-      <button class="pagination__button">5</button>
-      <button class="pagination__button">...</button>
-      <button class="pagination__button">12</button>
-      <button class="pagination__button">
+      <button 
+        class="pagination__button"
+        v-for="page in visiblePages"
+        @click="goToPage(page)"
+        :class="{ active: page === currentPage }" 
+        :key="page"
+      >
+        {{ page }}
+      </button>
+      <button class="pagination__button" @click="showNextPages" v-if="currentPageGroup * pagesPerGroup < tasks.pages">...</button>
+      <button 
+        class="pagination__button" 
+        :class="{ active: currentPage === tasks.pages }" 
+        @click="goToLastPage" 
+        v-if="currentPage !== tasks.pages && !visiblePages.includes(tasks.pages)"
+      >
+        {{ tasks.pages }}
+      </button>
+      <button class="pagination__button" @click="goToNextPage">
         <img src="../assets/icons/next.svg">
       </button>
-      <button class="pagination__button button__right">
+      <button class="pagination__button button__right" @click="goToLastPage">
         <img src="../assets/icons/last.svg">
       </button>
     </div>
@@ -36,7 +47,78 @@
 </template>
 
 <script>
+export default {
+  name: 'BasePagination',
+  data() {
+    return {
+      currentPageGroup: 1,
+      pagesPerGroup: 5,
+      currentPage: 1
+    }
+  },
 
+  props: {
+    tasks: {
+      type: Object,
+      required: true
+    }
+  },
+
+  computed: {
+    visiblePages() {
+      const startPage = (this.currentPageGroup - 1) * this.pagesPerGroup + 1
+      const endPage = Math.min(startPage + this.pagesPerGroup - 1, this.tasks.pages)
+      return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
+    }
+  },
+
+  methods: {
+    async goToPage(page) {
+      try {
+        await this.$router.push({ query: { page } })
+        this.currentPage = page
+      } catch (err) {
+        if (err.name !== 'NavigationDuplicated') {
+          throw err
+        }
+      }
+    },
+    showNextPages() {
+      if (this.currentPageGroup * this.pagesPerGroup < this.tasks.pages) {
+        this.currentPageGroup++
+        this.goToPage((this.currentPageGroup - 1) * this.pagesPerGroup + 1)
+      }
+    },
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        if (this.currentPage === this.visiblePages[0]) {
+          this.currentPageGroup--
+        }
+        this.goToPage(this.currentPage - 1)
+      }
+    },
+    goToNextPage() {
+      if (this.currentPage < this.tasks.pages) {
+        if (this.currentPage === this.visiblePages[this.visiblePages.length - 1]) {
+          this.currentPageGroup++
+        }
+        this.goToPage(this.currentPage + 1)
+      }
+    },
+    goToFirstPage() {
+      this.currentPageGroup = 1
+      this.goToPage(1)
+    },
+    goToLastPage() {
+      this.currentPageGroup = Math.ceil(this.tasks.pages / this.pagesPerGroup)
+      this.goToPage(this.tasks.pages)
+    }
+  },
+
+  mounted() {
+    console.log(this.tasks)
+  }
+}
 </script>
 
 <style lang="scss" scoped>

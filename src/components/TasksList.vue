@@ -64,7 +64,7 @@
         <p class="table__item text-item">{{ task.status.name }}</p>
       </div>
     </div>
-    <BasePagination/>
+    <BasePagination :tasks="tasks"/>
     <BasePopup/>
   </div>
 </template>
@@ -100,7 +100,7 @@ export default {
 
   watch: {
     tasks(newTasks) {
-      console.log(newTasks.results)
+      console.log(newTasks)
     }
   },
 
