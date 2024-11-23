@@ -3,8 +3,14 @@
     <button class="search__button" @click="openPopup">Создать</button>
     <div class="list__inputs-wrapper">
       <div class="search-wrapper">
-        <input class="input__search" placeholder="Поиск (№ заявки, название)">
-        <img src="../assets/icons/search.svg">
+        <input 
+          class="input__search" 
+          v-model="searchQuery" 
+          placeholder="Поиск (№ заявки, название)"
+        />
+        <button class="search__btn" @click="onSearchClick">
+          <img src="../assets/icons/search.svg">
+        </button>
       </div>
       <div class="search-wrapper">
         <input class="input__search" placeholder="Дом">
@@ -41,7 +47,7 @@
         <img src="../assets/icons/arrow-up.svg">
       </div>
     </div>
-    <div class="list__table" v-for="(task, index) in tasks.results" :key="task">
+    <div class="list__table" v-for="(task, index) in filteredTasks" :key="index">
       <div class="table__slot num-slot">
         <button class="table__change-btn" @click="openEditPopup(task)">{{ index + 1 }}</button>
       </div>
@@ -84,12 +90,24 @@ export default {
   },
   data() {
     return {
-      
+      searchQuery: '',
+      filteredQuery: ''
     }
   },
 
   computed: {
-    ...mapState(['tasks'])
+    ...mapState(['tasks']),
+    filteredTasks() {
+      if (!this.filteredQuery) return this.tasks.results
+
+      const query = this.filteredQuery.toLowerCase()
+
+      return this.tasks.results.filter(task => {
+        const idMatch = task.id.toString().includes(query)
+        const descriptionMatch = task.description && task.description.toLowerCase().includes(query)
+        return idMatch || descriptionMatch
+      })
+    }
   },
 
   methods: {
@@ -98,6 +116,17 @@ export default {
     formatDateWithTime,
     openEditPopup(task) {
       this.setEditingTask(task)
+    },
+    onSearchClick() {
+      this.filteredQuery = this.searchQuery
+      this.updateUrlSearch()
+    },
+    updateUrlSearch() {
+      const queryParams = new URLSearchParams()
+      if (this.filteredQuery) {
+        queryParams.set('search', this.filteredQuery)
+      }
+      window.history.pushState(null, '', '?' + queryParams.toString())
     }
   },
 
@@ -176,6 +205,12 @@ export default {
         &::placeholder {
           color: rgba(153, 153, 153, 1);
         }
+      }
+
+      .search__btn {
+        cursor: pointer;
+        background: none;
+        border: none;
       }
     }
   }
