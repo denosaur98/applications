@@ -7,7 +7,7 @@
       <h2 class="inputs__title">Логин или Телефон</h2>
       <div class="inputs__input-wrapper">
         <img src="../assets/icons/phone.svg" class="input-icon">
-        <input class="contacts__input" type="number" v-model="username" placeholder="+7">
+        <input class="contacts__input" type="number" v-model="username" placeholder="79122333444">
       </div>
       <div class="inputs__input-wrapper">
         <img src="../assets/icons/lock.svg" class="input-icon">

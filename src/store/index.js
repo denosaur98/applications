@@ -56,7 +56,7 @@ export default new Vuex.Store({
 				const token = response.data.key
 				commit('SET_TOKEN', token)
 				commit('SET_ERROR_MESSAGE', null)
-				router.push('/tasks')
+				router.push('/tasks?page=1&page_size=10')
 			} catch {
 				commit('SET_TOKEN', null)
 				commit('SET_ERROR_MESSAGE', 'Некорректные данные')
