@@ -80,7 +80,10 @@ export default {
   watch: {
     editingTask(newTask) {
       if (newTask) {
-        this.formData = { ...newTask }
+        this.formData = {
+          ...newTask,
+          premise: newTask.premise ? newTask.premise : { address: '', apartments_count: '' }
+        }
       } else {
         this.clearFormData()
       }
