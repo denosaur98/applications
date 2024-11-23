@@ -12,6 +12,8 @@ export default new Vuex.Store({
 		isCreatePopupOpen: false,
 		currentPage: 1,
 		pageSize: 10,
+		editingTask: null,
+		editingTaskId: null,
 	},
 	mutations: {
 		SET_TOKEN(state, token) {
@@ -34,6 +36,16 @@ export default new Vuex.Store({
 		},
 		SET_PAGE_SIZE(state, size) {
 			state.pageSize = size
+		},
+		SET_EDITING_TASK(state, task) {
+			state.editingTask = task
+		},
+		SET_EDITING_TASK_ID(state, taskId) {
+			state.editingTaskId = taskId
+		},
+		CLEAR_EDITING_TASK(state) {
+			state.editingTask = null
+			state.editingTaskId = null
 		},
 	},
 	actions: {
@@ -76,6 +88,7 @@ export default new Vuex.Store({
 		},
 		closePopup({ commit }) {
 			commit('SET_CLOSE_POPUP')
+			commit('CLEAR_EDITING_TASK')
 		},
 		async createAppeal({ state }, formData) {
 			try {
@@ -90,6 +103,27 @@ export default new Vuex.Store({
 				console.error('Ошибка при создании заявки:', error)
 				throw error
 			}
+		},
+		async editAppeal({ state, commit }, { taskId, formData }) {
+			try {
+				const response = await axios.patch(`https://dev.moydomonline.ru/api/appeals/v1.0/appeals/${taskId}/`, formData, {
+					headers: {
+						Authorization: `Token ${state.token}`,
+					},
+				})
+				console.log('Заявка отредактирована:', response.data)
+				commit('SET_EDITING_TASK', null)
+				commit('SET_EDITING_TASK_ID', null)
+				return response.data
+			} catch (error) {
+				console.error('Ошибка при редактировании заявки:', error)
+				throw error
+			}
+		},
+		setEditingTask({ commit }, task) {
+			commit('SET_EDITING_TASK', task)
+			commit('SET_EDITING_TASK_ID', task.id)
+			commit('SET_OPEN_POPUP')
 		},
 	},
 })

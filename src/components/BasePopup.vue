@@ -3,20 +3,20 @@
     <div class="popup__overlay" @click="closePopup"></div>
     <form class="popup-wrapper" @submit.prevent="submitAppeal">
       <div class="popup__title-wrapper">
-        <h1 class="popup__title">Создание заявки</h1>
-        <h2 class="task__title">Новая</h2>
+        <h1 class="popup__title">{{ editingTask ? 'Редактирование' : 'Создание' }}</h1>
+        <h2 class="task__title">{{ editingTask ? 'Существующая' : 'Новая' }}</h2>
       </div>
       <div class="popup__inputs-wrapper">
         <div class="input-wrapper">
-          <input class="input__item" v-model="formData.premise_id" placeholder="Дом">
+          <input class="input__item" v-model="formData.premise.address" placeholder="Дом">
           <img src="../assets/icons/arrow-bottom.svg">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" v-model="formData.apartment_id" placeholder="Квартира">
+          <input class="input__item" v-model="formData.premise.apartments_count" placeholder="Квартира">
           <img src="../assets/icons/arrow-bottom.svg">
         </div>
         <div class="input-wrapper">
-          <input class="input__item" v-model="formData.due_date" type="datetime-local" placeholder="Срок">
+          <input class="input__item" v-model="formattedDueDate" type="datetime-local" placeholder="Срок">
         </div>
       </div>
       <div class="popup__inputs-wrapper">
@@ -36,7 +36,7 @@
       <div class="popup__inputs-wrapper" style="height: auto;">
         <textarea class="input__item input__area" v-model="formData.description" placeholder="Описание заявки"></textarea>
       </div>
-      <button class="create__task-button" type="submit">Создать</button>
+      <button class="create__task-button" type="submit">{{ editingTask ? 'Сохранить' : 'Создать' }}</button>
     </form>
   </div>
 </template>
@@ -49,8 +49,10 @@ export default {
   data() {
     return {
       formData: {
-        premise_id: '',
-        apartment_id: '',
+        premise: {
+          address: '',
+          apartments_count: ''
+        },
         due_date: '',
         applicant: {
           last_name: '',
@@ -64,27 +66,51 @@ export default {
   },
 
   computed: {
-    ...mapState(['isCreatePopupOpen']),
+    ...mapState(['isCreatePopupOpen', 'editingTask', 'editingTaskId']),
+    formattedDueDate: {
+      get() {
+        return this.formatDateForInput(this.formData.due_date)
+      },
+      set(value) {
+        this.formData.due_date = this.parseDateFromInput(value)
+      }
+    }
+  },
+
+  watch: {
+    editingTask(newTask) {
+      if (newTask) {
+        this.formData = { ...newTask }
+      } else {
+        this.clearFormData()
+      }
+    }
   },
 
   methods: {
-    ...mapActions(['closePopup', 'createAppeal']),
+    ...mapActions(['closePopup', 'createAppeal', 'editAppeal']),
     async submitAppeal() {
       try {
         console.log('Отправка данных:', this.formData)
-        await this.createAppeal(this.formData)
+        if (this.editingTask) {
+          await this.editAppeal({ taskId: this.editingTaskId, formData: this.formData })
+        } else {
+          await this.createAppeal(this.formData)
+        }
         this.closePopup()
         this.clearFormData()
       } catch (error) {
         this.closePopup()
-        alert('Ошибка при создании заявки: ', error)
+        alert('Ошибка при создании/редактировании заявки: ', error)
         this.clearFormData()
       }
     },
     clearFormData() {
       this.formData = {
-        premise_id: '',
-        apartment_id: '',
+        premise: {
+          address: '',
+          apartments_count: ''
+        },
         due_date: '',
         applicant: {
           last_name: '',
@@ -94,8 +120,26 @@ export default {
         },
         description: ''
       }
+    },
+    formatDateForInput(dateString) {
+      if (!dateString) return ''
+      const date = new Date(dateString)
+      const year = date.getFullYear()
+      const month = (date.getMonth() + 1).toString().padStart(2, '0')
+      const day = date.getDate().toString().padStart(2, '0')
+      const hours = date.getHours().toString().padStart(2, '0')
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      return `${year}-${month}-${day}T${hours}:${minutes}`
+    },
+    parseDateFromInput(dateString) {
+      if (!dateString) return ''
+      const [datePart, timePart] = dateString.split('T')
+      const [year, month, day] = datePart.split('-').map(Number)
+      const [hours, minutes] = timePart.split(':').map(Number)
+      const date = new Date(year, month - 1, day, hours, minutes)
+      return date.toISOString()
     }
-  },
+  }
 }
 </script>
 

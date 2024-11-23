@@ -43,7 +43,7 @@
     </div>
     <div class="list__table" v-for="(task, index) in tasks.results" :key="task">
       <div class="table__slot num-slot">
-        <button class="table__change-btn">{{ index + 1 }}</button>
+        <button class="table__change-btn" @click="openEditPopup(task)">{{ index + 1 }}</button>
       </div>
       <div class="table__slot date-slot">
         <p class="table__item text-item">{{ formatDate(task.created_at) }}</p>
@@ -93,9 +93,12 @@ export default {
   },
 
   methods: {
-    ...mapActions(['fetchTasks', 'openPopup', 'closePopup']),
+    ...mapActions(['fetchTasks', 'openPopup', 'closePopup', 'setEditingTask']),
     formatDate,
-    formatDateWithTime
+    formatDateWithTime,
+    openEditPopup(task) {
+      this.setEditingTask(task)
+    }
   },
 
   watch: {
