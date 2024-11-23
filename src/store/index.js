@@ -65,7 +65,9 @@ export default new Vuex.Store({
 		async fetchTasks({ commit, state }, { page = 1, pageSize = 10 } = {}) {
 			if (!state.token) {
 				console.error('Токен не установлен')
-				router.push('/auth')
+				if (router.currentRoute.path !== '/auth') {
+					router.push('/auth')
+				}
 				return
 			}
 			try {
@@ -85,7 +87,9 @@ export default new Vuex.Store({
 				if (error.response && error.response.status === 401) {
 					commit('SET_TOKEN', null)
 					commit('SET_ERROR_MESSAGE', 'Неверный токен')
-					router.push('/auth')
+					if (router.currentRoute.path !== '/auth') {
+						router.push('/auth')
+					}
 				} else {
 					commit('SET_ERROR_MESSAGE', 'Некорректные данные')
 				}
@@ -109,7 +113,9 @@ export default new Vuex.Store({
 				return response.data
 			} catch (error) {
 				if (error.response && error.response.status === 401) {
-					router.push('/auth')
+					if (router.currentRoute.path !== '/auth') {
+						router.push('/auth')
+					}
 				} else {
 					console.error('Ошибка при создании заявки:', error)
 				}
@@ -131,7 +137,9 @@ export default new Vuex.Store({
 				if (error.response && error.response.status === 401) {
 					commit('SET_TOKEN', null)
 					commit('SET_ERROR_MESSAGE', 'Неверный токен')
-					router.push('/auth')
+					if (router.currentRoute.path !== '/auth') {
+						router.push('/auth')
+					}
 				} else {
 					console.error('Ошибка при редактировании заявки:', error)
 				}
