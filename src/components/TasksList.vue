@@ -58,22 +58,29 @@
         <button class="table__change-btn" @click="openEditPopup(task)">{{ task.id.slice(0, 2) }}</button>
       </div>
       <div class="table__slot date-slot">
-        <p class="table__item text-item">{{ formatDate(task.created_at) }}</p>
+        <p class="table__item text-item" v-if="task.created_at">{{ formatDate(task.created_at) }}</p>
       </div>
       <div class="table__slot address-slot">
         <p class="table__item text-item" v-if="task.premise">{{ task.premise.address }}, кв. {{ task.premise.apartments_count }}</p>
       </div>
       <div class="table__slot user-slot">
-        <p class="table__item text-item">{{ task.applicant.last_name }}. {{ task.applicant.first_name.slice(0, 1) }}. {{ task.applicant.patronymic_name.slice(0, 1) }}</p>
+        <p 
+          class="table__item text-item"
+          v-if="task.applicant.last_name && task.applicant.first_name && task.applicant.patronymic_name"
+        >
+          {{ task.applicant.last_name }}. 
+          {{ task.applicant.first_name.slice(0, 1) }}. 
+          {{ task.applicant.patronymic_name.slice(0, 1) }}
+        </p>
       </div>
       <div class="table__slot description-slot">
-        <p class="table__item text-item">{{ task.description }}</p>
+        <p class="table__item text-item" v-if="task.description">{{ task.description }}</p>
       </div>
       <div class="table__slot time-slot">
-        <p class="table__item text-item">{{ formatDateWithTime(task.due_date) }}</p>
+        <p class="table__item text-item" v-if="task.due_date">{{ formatDateWithTime(task.due_date) }}</p>
       </div>
       <div class="table__slot status-slot">
-        <p class="table__item text-item">{{ task.status.name }}</p>
+        <p class="table__item text-item" v-if="task.status.name">{{ task.status.name }}</p>
       </div>
     </div>
     <BasePagination :tasks="tasks"/>
