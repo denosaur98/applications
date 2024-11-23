@@ -49,7 +49,7 @@
     </div>
     <div class="list__table" v-for="(task, index) in filteredTasks" :key="index">
       <div class="table__slot num-slot">
-        <button class="table__change-btn" @click="openEditPopup(task)">{{ index + 1 }}</button>
+        <button class="table__change-btn" @click="openEditPopup(task)">{{ task.id.slice(0, 2) }}</button>
       </div>
       <div class="table__slot date-slot">
         <p class="table__item text-item">{{ formatDate(task.created_at) }}</p>
@@ -103,7 +103,7 @@ export default {
       const query = this.filteredQuery.toLowerCase()
 
       return this.tasks.results.filter(task => {
-        const idMatch = task.id.toString().includes(query)
+        const idMatch = task.id.toString().slice(0, 2).toLowerCase().includes(query)
         const descriptionMatch = task.description && task.description.toLowerCase().includes(query)
         return idMatch || descriptionMatch
       })
