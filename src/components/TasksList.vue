@@ -13,8 +13,14 @@
         </button>
       </div>
       <div class="search-wrapper">
-        <input class="input__search" placeholder="Дом">
-        <img src="../assets/icons/arrow-bottom.svg">
+        <input 
+          class="input__search" 
+          v-model="addressSearchQuery" 
+          placeholder="Адрес"
+        />
+        <button class="search__btn" @click="onAddressSearchClick">
+          <img src="../assets/icons/search.svg">
+        </button>
       </div>
     </div>
     <div class="list__table" style="height: 45px;">
@@ -47,7 +53,7 @@
         <img src="../assets/icons/arrow-up.svg">
       </div>
     </div>
-    <div class="list__table" v-for="(task, index) in filteredTasks" :key="index">
+    <div class="list__table" v-for="task in filteredTasks" :key="task.id">
       <div class="table__slot num-slot">
         <button class="table__change-btn" @click="openEditPopup(task)">{{ task.id.slice(0, 2) }}</button>
       </div>
@@ -91,21 +97,26 @@ export default {
   data() {
     return {
       searchQuery: '',
-      filteredQuery: ''
+      filteredQuery: '',
+      addressSearchQuery: '',
+      filteredAddressQuery: ''
     }
   },
 
   computed: {
     ...mapState(['tasks']),
     filteredTasks() {
-      if (!this.filteredQuery) return this.tasks.results
+      if (!this.filteredQuery && !this.filteredAddressQuery) return this.tasks.results
 
       const query = this.filteredQuery.toLowerCase()
+      const addressQuery = this.filteredAddressQuery.toLowerCase()
 
       return this.tasks.results.filter(task => {
-        const idMatch = task.id.toString().slice(0, 2).toLowerCase().includes(query)
+        const idMatch = task.id.toString().slice(0, 2).toLowerCase() === query.slice(0, 2)
         const descriptionMatch = task.description && task.description.toLowerCase().includes(query)
-        return idMatch || descriptionMatch
+        const addressMatch = task.premise && task.premise.address.toLowerCase().includes(addressQuery)
+
+        return (idMatch || descriptionMatch) && (!addressQuery || addressMatch)
       })
     }
   },
@@ -121,18 +132,19 @@ export default {
       this.filteredQuery = this.searchQuery
       this.updateUrlSearch()
     },
+    onAddressSearchClick() {
+      this.filteredAddressQuery = this.addressSearchQuery
+      this.updateUrlSearch()
+    },
     updateUrlSearch() {
       const queryParams = new URLSearchParams()
       if (this.filteredQuery) {
         queryParams.set('search', this.filteredQuery)
       }
+      if (this.filteredAddressQuery) {
+        queryParams.set('premise_id=', this.filteredAddressQuery)
+      }
       window.history.pushState(null, '', '?' + queryParams.toString())
-    }
-  },
-
-  watch: {
-    tasks(newTasks) {
-      console.log(newTasks)
     }
   },
 
