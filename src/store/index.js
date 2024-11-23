@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import router from '../router/index'
 
 Vue.use(Vuex)
 
@@ -64,6 +65,7 @@ export default new Vuex.Store({
 		async fetchTasks({ commit, state }, { page = 1, pageSize = 10 } = {}) {
 			if (!state.token) {
 				console.error('Токен не установлен')
+				router.push('/auth')
 				return
 			}
 			try {
@@ -79,8 +81,14 @@ export default new Vuex.Store({
 				commit('SET_TASKS', response.data)
 				commit('SET_CURRENT_PAGE', page)
 				commit('SET_PAGE_SIZE', pageSize)
-			} catch {
-				commit('SET_ERROR_MESSAGE', 'Некорректные данные')
+			} catch (error) {
+				if (error.response && error.response.status === 401) {
+					commit('SET_TOKEN', null)
+					commit('SET_ERROR_MESSAGE', 'Неверный токен')
+					router.push('/auth')
+				} else {
+					commit('SET_ERROR_MESSAGE', 'Некорректные данные')
+				}
 			}
 		},
 		openPopup({ commit }) {
@@ -100,7 +108,11 @@ export default new Vuex.Store({
 				console.log('Заявка создана:', response.data)
 				return response.data
 			} catch (error) {
-				console.error('Ошибка при создании заявки:', error)
+				if (error.response && error.response.status === 401) {
+					router.push('/auth')
+				} else {
+					console.error('Ошибка при создании заявки:', error)
+				}
 				throw error
 			}
 		},
@@ -116,7 +128,13 @@ export default new Vuex.Store({
 				commit('SET_EDITING_TASK_ID', null)
 				return response.data
 			} catch (error) {
-				console.error('Ошибка при редактировании заявки:', error)
+				if (error.response && error.response.status === 401) {
+					commit('SET_TOKEN', null)
+					commit('SET_ERROR_MESSAGE', 'Неверный токен')
+					router.push('/auth')
+				} else {
+					console.error('Ошибка при редактировании заявки:', error)
+				}
 				throw error
 			}
 		},
